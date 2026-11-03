@@ -20,19 +20,15 @@ export function createApp(db: Database) {
     res.json({ status: "ok" });
   });
 
-  // Students recebe suas dependências na composição da aplicação.
   const studentRepository = new PgStudentRepository(db);
   const studentsService = new StudentsService(studentRepository);
 
-  // Courses também recebe suas dependências pela composição da aplicação.
   const courseRepository = new PgCourseRepository(db);
   const coursesService = new CoursesService(courseRepository);
 
-  // Enrollments também recebe suas dependências pela composição da aplicação.
   const enrollmentRepository = new PgEnrollmentRepository(db);
   const enrollmentsService = new EnrollmentsService(enrollmentRepository);
 
-  // Encaminha as requisições para as rotas de cada recurso.
   app.use("/api/students", studentsRoutes(studentsService));
   app.use("/api/courses", coursesRoutes(coursesService));
   app.use("/api/enrollments", enrollmentsRoutes(enrollmentsService));
@@ -41,7 +37,6 @@ export function createApp(db: Database) {
     next(new HttpError(404, "Rota não encontrada."));
   });
 
-  // O Express identifica o tratamento de erros pelos quatro parâmetros.
   const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
     let statusCode = 500;
     let message = "Erro interno do servidor.";
