@@ -1,8 +1,21 @@
-# Atividade: injeção de dependência
+# Atividade: Injeção de Dependência
 
-Este projeto permite cadastrar alunos, cursos e matrículas por uma API Express com TypeScript e PostgreSQL. O objetivo da atividade é **implementar injeção de dependência nos módulos de cursos (`courses`) e matrículas (`enrollments`)**, usando o módulo de alunos (`students`) como referência.
+## Visão geral
 
-O projeto já funciona antes da atividade. Sua tarefa é mudar a maneira como os objetos recebem suas dependências, preservando o comportamento da aplicação.
+Este repositório contém uma aplicação para cadastro e consulta de alunos, cursos e matrículas, desenvolvida com uma API Express, TypeScript e PostgreSQL. O foco da atividade é aplicar **injeção de dependência** nos módulos de cursos (`courses`) e matrículas (`enrollments`), utilizando o módulo de alunos (`students`) como modelo.
+
+A proposta é melhorar a organização e o desacoplamento entre as camadas da aplicação, sem modificar o comportamento esperado da API.
+
+## Navegação
+
+- [O que é injeção de dependência?](#o-que-é-injeção-de-dependência)
+- [Estado inicial considerado na atividade](#estado-inicial-considerado-na-atividade)
+- [Diagramas de classes](#diagramas-de-classes)
+- [Diagramas de sequência](#diagramas-de-sequência-das-rotas)
+- [Objetivos da atividade](#objetivos-da-atividade)
+- [Critérios de conclusão](#critérios-de-conclusão)
+- [Como executar a aplicação](#como-executar-a-aplicação)
+- [Organização do projeto](#organização-do-projeto)
 
 ## O que é injeção de dependência?
 
@@ -44,7 +57,7 @@ O repositório recebe o banco, o serviço recebe o repositório e a função de 
 
 A dependência é fornecida quando os objetos são montados. A cada requisição HTTP, as rotas usam os objetos já preparados; não precisam recriar essa cadeia.
 
-## Estado inicial do projeto
+## Estado inicial considerado na atividade
 
 | Camada | Alunos: exemplo com injeção | Cursos e matrículas: exercício |
 | --- | --- | --- |
@@ -53,9 +66,13 @@ A dependência é fornecida quando os objetos são montados. A cada requisição
 | Repositório | Recebe o banco pelo contrato `Database`. | Importa e usa o `pool` diretamente. |
 | Composição em `app.ts` | Conecta banco, repositório, serviço e rotas. | Chama as funções de rotas sem fornecer dependências. |
 
-Essa diferença é intencional. Ao concluir a atividade, cursos e matrículas devem seguir o mesmo padrão de alunos.
+Essa diferença representa o cenário proposto originalmente pelo exercício: cursos e matrículas devem ser refatorados para seguir o mesmo padrão de alunos.
 
-## Diagramas de classes: estrutura atual
+> **Observação sobre esta versão do repositório:** os arquivos atuais de `courses`, `enrollments` e `app.ts` já apresentam a injeção de dependência descrita nos objetivos. Portanto, os diagramas e a tabela desta seção documentam o cenário inicial usado para explicar a atividade, e não necessariamente a implementação atual dos arquivos.
+
+## Diagramas de classes
+
+Os diagramas desta seção representam a estrutura inicial usada como referência no exercício.
 
 As funções de rotas e de composição aparecem como elementos com o estereótipo `function`; elas não são classes TypeScript.
 
@@ -242,11 +259,11 @@ sequenceDiagram
     end
 ```
 
-As chamadas HTTP percorrem camadas semelhantes nos dois módulos. A diferença está em **quem fornece as dependências** na inicialização. Após a refatoração de cursos, a montagem deve se parecer com a de alunos; os resultados HTTP devem continuar iguais.
+As chamadas HTTP percorrem camadas semelhantes nos dois módulos. A diferença do cenário inicial está em **quem fornece as dependências** durante a inicialização. Após a refatoração, a montagem de cursos deve seguir o mesmo padrão usado em alunos, mantendo os mesmos resultados HTTP.
 
 Os diagramas omitem os caminhos de erro para facilitar a leitura. Entradas inválidas geram `400`, registros ausentes geram `404` e conflitos de unicidade geram `409`. Os erros seguem para o tratador de `app.ts`, que monta a resposta JSON.
 
-## Sua tarefa
+## Objetivos da atividade
 
 Refatore `courses` e `enrollments` seguindo o exemplo de `students`:
 
@@ -267,16 +284,16 @@ Preserve o módulo `students` como referência. Mantenha os endpoints, os corpos
 - A verificação de tipos e a compilação passam, e as operações da API continuam funcionando.
 
 
-## Executar a aplicação
+## Como executar a aplicação
 
-Com Docker e Docker Compose instalados, copie `.env.example` para `.env` se ainda não existir e execute na raiz:
+Antes de iniciar, verifique se o Docker e o Docker Compose estão instalados. Na pasta raiz do projeto, crie o arquivo `.env` a partir do modelo, caso ele ainda não exista, e depois execute:
 
 ```powershell
 Copy-Item .env.example .env
 docker compose up -d --build
 ```
 
-Execute a cópia apenas se ainda não tiver `.env`, para preservar sua configuração. Com os valores do modelo:
+Atenção: execute a cópia somente quando o arquivo `.env` ainda não existir, para não sobrescrever configurações locais. Com os valores padrão do modelo, os serviços ficam disponíveis nos seguintes endereços:
 
 | Recurso | Endereço |
 | --- | --- |
@@ -286,15 +303,15 @@ Execute a cópia apenas se ainda não tiver `.env`, para preservar sua configura
 | API de matrículas | http://localhost:3002/api/enrollments |
 | PostgreSQL | `localhost:5433` |
 
-O banco aplica `database/init.sql` e `database/seed.sql` na primeira inicialização de um diretório de dados vazio. Os dados persistem no volume `atv3_database_data`.
+Na primeira inicialização com um volume de dados vazio, o PostgreSQL executa `database/init.sql` e `database/seed.sql`. Os dados são mantidos no volume Docker `atv3_database_data`.
 
-Para encerrar os serviços:
+Para parar os serviços e remover os contêineres criados pelo Compose:
 
 ```powershell
 docker compose down
 ```
 
-## Onde encontrar o código
+## Organização do projeto
 
 | Caminho | Responsabilidade |
 | --- | --- |
